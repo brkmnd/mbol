@@ -1,0 +1,106 @@
+<!DOCTYPE html>
+<html>
+    <head>
+        <style>
+            .codef {
+                display:none;
+            }
+        </style>
+    </head>
+    <body>
+        <p id="ud"></p>
+        <span id="code1" style="display:none;">
+            let a = 2 + 2;
+            type A =
+                  B of B * C
+                | Noget of D -> A
+                ;
+            type B =
+                  D of A.B.C.D
+                | Abe of A * (A -> B) * A
+                ;
+            (a : A * B, b : B * B) ->
+                match a with
+                | A.B.C a ? 2 == 3 : noget
+                | b :
+                    let a,b,c,d = (200,300,400,500);
+                    let noget = [|200;300;400;d[200]|];
+                    block
+                        let a = 2 + 2 * 2;
+                        let b = 2 * 4 / 5;
+                        ()
+                        ;
+                ;
+        </span>
+        <span id="code2" style="display:none;">
+            let a = 2 + 2;
+            type A =
+                  B of C * D
+                | E of F -> G
+                ;
+            type B =
+                  D
+                | C of E * F
+                ;
+            let a =
+                let b = 2 + 2;
+                b
+                ;
+            match a with
+                | A a : 200
+                | B b : 300
+                ;
+        </span>
+        <span id="code3" class="codef">
+            let a,b,c,d = (2,3,4,5);
+            let e =
+                let n1 = 800;
+                let n2 =
+                    let n3 = 400 + 500 + 600;
+                    n1
+                    ;
+                n1 + n2
+                ;
+            a
+        </span>
+        <script src="stack.js"></script>
+        <script src="mbol.js"></script>
+        <script>
+            var incode = function(){
+                var retval = document.getElementById("code1").innerHTML;
+                retval = retval.replace(/(\&gt;)|(\&lt;)|(\&amp;)|¤([a-zA-Z])/g,
+                    function(a,i1,i2,i3,i4){
+                        if(i1 !== undefined){
+                            return ">";
+                            }
+                        if(i2 !== undefined){
+                            return "<";
+                            }
+                        if(i3 !== undefined){
+                            return "&";
+                            }
+                        if(i4 !== undefined){
+                            //start with uppercase
+                            return i4;
+                            }
+                        return a;
+                        }
+                    );
+                return retval;
+                }();
+            
+            var printfn = function(){
+                var ud = document.getElementById("ud");
+                ud.style.fontFamily = "monospace";
+                ud.style.fontSize = "11pt";
+                ud.style.whiteSpace = "pre";
+                return function(str){
+                    ud.innerHTML += str + "<br>";
+                    };
+                }();
+            var mbol = new MbolLang();
+            var tree = mbol.eval(incode);
+            printfn("\n\n****done****")
+        </script>
+    </body>
+</html>

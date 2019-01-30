@@ -16368,7 +16368,7 @@ var MbolLang = function(){
             }
         return retval;
         };
-    var evalTree = function(treeStack){
+    var traverseTree = function(treeStack){
         var exec = function(depth,tree){
             switch(tree.type){
                 case "scope":
@@ -16433,7 +16433,7 @@ var MbolLang = function(){
                 //printfn(lexed[i].tt);
                 }
             var parsed = parser(lexed);
-            var evaled = evalTree(parsed);
+            var evaled = traverseTree(parsed);
             }
         };
     };

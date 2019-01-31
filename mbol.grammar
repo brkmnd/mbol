@@ -21,10 +21,10 @@ token   "eq"    ,"not-eq"   ,"geq"      ,"leq"  ,"gt"   ,"lt"
     as  "=="    ,"!="       ,">="       ,"<="   ,">"    ,"<"
 token   "and"   ,"or"       ,"imp"      ,"biimp"    ,"not"
     as  "\\&\\&","\\|\\|"   ,"=>"       ,"<=>"      ,"!"
-token   "comma" ,"dotdot"   ,"dot"  ,"colon"    ,"mid"  ,"uscore"    ,"qmark"    ,"hash"
-    as  ","     ,".."       ,"."    ,":"        ,"\\|"  ,"_"         ,"\\?"      ,"#"
-token   "bslash","up"   ,"amp"  ,"tilde"    ,"scolon"    ,"dcolon"
-    as  "\\\\"  ,"\\^"  ,"\\&"  ,"~"        ,";"         ,"::"
+token   "comma" ,"dotdot"   ,"dot"      ,"mid"  ,"uscore"   ,"qmark"    ,"hash"
+    as  ","     ,".."       ,"."        ,"\\|"  ,"_"        ,"\\?"      ,"#"
+token   "bslash","up"   ,"amp"  ,"tilde"        ,"scolon"   ,"dcolon"   ,"colon"
+    as  "\\\\"  ,"\\^"  ,"\\&"  ,"~"            ,";"        ,"::"       ,":"
 token   "let"   ,"type"     ,"assign"   ,"match"    ,"with" ,"block"    ,"of"
     as  "let"   ,"type"     ,"="        ,"match"    ,"with" ,"block"    ,"of"
 #caps
@@ -139,7 +139,7 @@ prod Matcher'   -> "mid" Matcher
                  | "scolon"
 prod MatchLeft  -> Atom MatchLeft'
                  | Type Atom MatchLeft'
-prod MatchLeft' -> "dcolon" Atom
+prod MatchLeft' -> "dcolon" Atom MatchLeft'
                  |
 prod MatchWhen  -> "qmark" Exp |
 

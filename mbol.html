@@ -13,7 +13,7 @@
             let a = 2 + 2;
             type A =
                   B of B * C
-                | Noget of D -> A
+                | Noget of (K -> L -> M) * Der
                 ;
             type B =
                   D of A.B.C.D
@@ -24,7 +24,9 @@
                 | A.B.C a ? 2 == 3 : noget
                 | b :
                     let a,b,c,d = (200,300,400,500);
-                    let noget = [|200;300;400;d[200]|];
+                    let noget = [|200;300;400;d[a + 2]|];
+                    let listNoget = [200;300;400;500;600;d[a : d]];
+                    let listNoget = 100::listNoget;
                     block
                         let a = 2 + 2 * 2;
                         let b = 2 * 4 / 5;

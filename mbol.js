@@ -372,7 +372,7 @@ var MbolLang = function(){
         63:function(tree){ return tree; },
         //[64] AtomIndexer -> 
         64:function(tree){ return tree; },
-        //[65] AtomIndexer -> lbracket Stmt rbracket 
+        //[65] AtomIndexer -> lbracket Exp rbracket 
         65:function(tree){
             var ind = tree.pop();
             var items = tree.pop();
@@ -448,7 +448,8 @@ var MbolLang = function(){
             var plusses = tree.pop();
             var body = tree.pop();
             var id = tree.pop();
-            plusses.args.push({type:"type-constr",v:id.v,body:body});
+            plusses.args.push({type:"type-constr",id:id.v,body:body});
+            plusses.args.reverse();
             tree.push(plusses);
             return tree;
             },
@@ -470,7 +471,7 @@ var MbolLang = function(){
         //[82] TypeCnstr1 -> of TypeCnstr2 
         82:function(tree){
             var typeBody = tree.pop();
-            tree.push({type:"type-constr-body",v:typeBody});
+            tree.push({type:"type-constr-body",v:null,args:[typeBody]});
             return tree;
             },
         //[83] TypeCnstr2 -> TypeCnstr3 
@@ -494,7 +495,13 @@ var MbolLang = function(){
             return tree;
             },
         //[88] List -> lbracket SMaker rbracket 
-        88:function(tree){ return tree; },
+        88:function(tree){
+            var list = tree.pop();
+            list.type = "list";
+            list.prgType = ["list","@"];
+            tree.push(list);
+            return tree;
+            },
         //[89] Arr -> lbracketm SMaker rbracketm 
         89:function(tree){
             var arr = tree.pop();
@@ -510,6 +517,7 @@ var MbolLang = function(){
             var items = tree.pop();
             var item = tree.pop();
             items.args.push(item);
+            items.args.reverse();
             tree.push(items);
             return tree;
             },
@@ -593,7 +601,7 @@ var MbolLang = function(){
         62:{prod:"Atom''",rside:[ "float"]},
         63:{prod:"Atom''",rside:[ "int"]},
         64:{prod:"AtomIndexer",rside:[]},
-        65:{prod:"AtomIndexer",rside:[ "lbracket","Stmt","rbracket"]},
+        65:{prod:"AtomIndexer",rside:[ "lbracket","Exp","rbracket"]},
         66:{prod:"AtomIndexer",rside:[ "dot","Atom''","AtomIndexer"]},
         67:{prod:"IdTuple",rside:[ "lpar","Id","IdTuple'","rpar"]},
         68:{prod:"IdTuple",rside:[ "Id","IdTuple'"]},
@@ -656,8 +664,6 @@ var MbolLang = function(){
             "(,)|"+
             "(\\.\\.)|"+
             "(\\.)|"+
-
-
             "(::)|"+
             "(\\|)|"+
             "(_)|"+
@@ -667,7 +673,6 @@ var MbolLang = function(){
             "(\\&)|"+
             "(~)|"+
             "(;)|"+
-
             "(:)|"+
             "(let)|"+
             "(type)|"+
@@ -1283,12 +1288,12 @@ var MbolLang = function(){
             "rarr":actionType.shift(54),
             "sleft":actionType.shift(55),
             "sright":actionType.shift(56),
-            "lbracketm":actionType.error("expected 'operator','bslash','colon','dcolon','dotdot','delimiter','parenthese','sleft','sright','eoi', but given 'lbracketm'"),
-            "rbracketm":actionType.error("expected 'operator','bslash','colon','dcolon','dotdot','delimiter','parenthese','sleft','sright','eoi', but given 'rbracketm'"),
-            "lpar":actionType.error("expected 'operator','bslash','colon','dcolon','dotdot','delimiter','parenthese','sleft','sright','eoi', but given 'parenthese'"),
-            "lbracket":actionType.error("expected 'operator','bslash','colon','dcolon','dotdot','delimiter','parenthese','sleft','sright','eoi', but given 'parenthese'"),
-            "rpar":actionType.error("expected 'operator','bslash','colon','dcolon','dotdot','delimiter','parenthese','sleft','sright','eoi', but given 'parenthese'"),
-            "rbracket":actionType.reduce(1),
+            "lbracketm":actionType.error("expected 'operator','bslash','colon','dcolon','dotdot','delimiter','sleft','sright','eoi', but given 'lbracketm'"),
+            "rbracketm":actionType.error("expected 'operator','bslash','colon','dcolon','dotdot','delimiter','sleft','sright','eoi', but given 'rbracketm'"),
+            "lpar":actionType.error("expected 'operator','bslash','colon','dcolon','dotdot','delimiter','sleft','sright','eoi', but given 'parenthese'"),
+            "lbracket":actionType.error("expected 'operator','bslash','colon','dcolon','dotdot','delimiter','sleft','sright','eoi', but given 'parenthese'"),
+            "rpar":actionType.error("expected 'operator','bslash','colon','dcolon','dotdot','delimiter','sleft','sright','eoi', but given 'parenthese'"),
+            "rbracket":actionType.error("expected 'operator','bslash','colon','dcolon','dotdot','delimiter','sleft','sright','eoi', but given 'parenthese'"),
             "plus":actionType.shift(51),
             "minus":actionType.shift(47),
             "power":actionType.shift(52),
@@ -1305,34 +1310,34 @@ var MbolLang = function(){
             "or":actionType.shift(50),
             "imp":actionType.shift(43),
             "biimp":actionType.shift(34),
-            "not":actionType.error("expected 'operator','bslash','colon','dcolon','dotdot','delimiter','parenthese','sleft','sright','eoi', but given 'operator'"),
-            "comma":actionType.error("expected 'operator','bslash','colon','dcolon','dotdot','delimiter','parenthese','sleft','sright','eoi', but given 'delimiter'"),
+            "not":actionType.error("expected 'operator','bslash','colon','dcolon','dotdot','delimiter','sleft','sright','eoi', but given 'operator'"),
+            "comma":actionType.error("expected 'operator','bslash','colon','dcolon','dotdot','delimiter','sleft','sright','eoi', but given 'delimiter'"),
             "dotdot":actionType.shift(39),
-            "dot":actionType.error("expected 'operator','bslash','colon','dcolon','dotdot','delimiter','parenthese','sleft','sright','eoi', but given 'delimiter'"),
+            "dot":actionType.error("expected 'operator','bslash','colon','dcolon','dotdot','delimiter','sleft','sright','eoi', but given 'delimiter'"),
             "mid":actionType.reduce(1),
-            "uscore":actionType.error("expected 'operator','bslash','colon','dcolon','dotdot','delimiter','parenthese','sleft','sright','eoi', but given 'uscore'"),
-            "qmark":actionType.error("expected 'operator','bslash','colon','dcolon','dotdot','delimiter','parenthese','sleft','sright','eoi', but given 'qmark'"),
+            "uscore":actionType.error("expected 'operator','bslash','colon','dcolon','dotdot','delimiter','sleft','sright','eoi', but given 'uscore'"),
+            "qmark":actionType.error("expected 'operator','bslash','colon','dcolon','dotdot','delimiter','sleft','sright','eoi', but given 'qmark'"),
             "bslash":actionType.shift(35),
             "up":actionType.shift(58),
             "amp":actionType.shift(32),
-            "tilde":actionType.error("expected 'operator','bslash','colon','dcolon','dotdot','delimiter','parenthese','sleft','sright','eoi', but given 'operator'"),
+            "tilde":actionType.error("expected 'operator','bslash','colon','dcolon','dotdot','delimiter','sleft','sright','eoi', but given 'operator'"),
             "scolon":actionType.reduce(1),
             "dcolon":actionType.shift(37),
             "colon":actionType.shift(36),
-            "let":actionType.error("expected 'operator','bslash','colon','dcolon','dotdot','delimiter','parenthese','sleft','sright','eoi', but given 'let'"),
-            "type":actionType.error("expected 'operator','bslash','colon','dcolon','dotdot','delimiter','parenthese','sleft','sright','eoi', but given 'type'"),
-            "assign":actionType.error("expected 'operator','bslash','colon','dcolon','dotdot','delimiter','parenthese','sleft','sright','eoi', but given 'assign'"),
-            "match":actionType.error("expected 'operator','bslash','colon','dcolon','dotdot','delimiter','parenthese','sleft','sright','eoi', but given 'match'"),
-            "with":actionType.error("expected 'operator','bslash','colon','dcolon','dotdot','delimiter','parenthese','sleft','sright','eoi', but given 'with'"),
-            "block":actionType.error("expected 'operator','bslash','colon','dcolon','dotdot','delimiter','parenthese','sleft','sright','eoi', but given 'block'"),
-            "of":actionType.error("expected 'operator','bslash','colon','dcolon','dotdot','delimiter','parenthese','sleft','sright','eoi', but given 'of'"),
-            "hex":actionType.error("expected 'operator','bslash','colon','dcolon','dotdot','delimiter','parenthese','sleft','sright','eoi', but given 'hex'"),
-            "binary":actionType.error("expected 'operator','bslash','colon','dcolon','dotdot','delimiter','parenthese','sleft','sright','eoi', but given 'binary'"),
-            "float":actionType.error("expected 'operator','bslash','colon','dcolon','dotdot','delimiter','parenthese','sleft','sright','eoi', but given 'float'"),
-            "int":actionType.error("expected 'operator','bslash','colon','dcolon','dotdot','delimiter','parenthese','sleft','sright','eoi', but given 'int'"),
-            "string":actionType.error("expected 'operator','bslash','colon','dcolon','dotdot','delimiter','parenthese','sleft','sright','eoi', but given 'string'"),
-            "type-id":actionType.error("expected 'operator','bslash','colon','dcolon','dotdot','delimiter','parenthese','sleft','sright','eoi', but given 'type-id'"),
-            "id":actionType.error("expected 'operator','bslash','colon','dcolon','dotdot','delimiter','parenthese','sleft','sright','eoi', but given 'id'"),
+            "let":actionType.error("expected 'operator','bslash','colon','dcolon','dotdot','delimiter','sleft','sright','eoi', but given 'let'"),
+            "type":actionType.error("expected 'operator','bslash','colon','dcolon','dotdot','delimiter','sleft','sright','eoi', but given 'type'"),
+            "assign":actionType.error("expected 'operator','bslash','colon','dcolon','dotdot','delimiter','sleft','sright','eoi', but given 'assign'"),
+            "match":actionType.error("expected 'operator','bslash','colon','dcolon','dotdot','delimiter','sleft','sright','eoi', but given 'match'"),
+            "with":actionType.error("expected 'operator','bslash','colon','dcolon','dotdot','delimiter','sleft','sright','eoi', but given 'with'"),
+            "block":actionType.error("expected 'operator','bslash','colon','dcolon','dotdot','delimiter','sleft','sright','eoi', but given 'block'"),
+            "of":actionType.error("expected 'operator','bslash','colon','dcolon','dotdot','delimiter','sleft','sright','eoi', but given 'of'"),
+            "hex":actionType.error("expected 'operator','bslash','colon','dcolon','dotdot','delimiter','sleft','sright','eoi', but given 'hex'"),
+            "binary":actionType.error("expected 'operator','bslash','colon','dcolon','dotdot','delimiter','sleft','sright','eoi', but given 'binary'"),
+            "float":actionType.error("expected 'operator','bslash','colon','dcolon','dotdot','delimiter','sleft','sright','eoi', but given 'float'"),
+            "int":actionType.error("expected 'operator','bslash','colon','dcolon','dotdot','delimiter','sleft','sright','eoi', but given 'int'"),
+            "string":actionType.error("expected 'operator','bslash','colon','dcolon','dotdot','delimiter','sleft','sright','eoi', but given 'string'"),
+            "type-id":actionType.error("expected 'operator','bslash','colon','dcolon','dotdot','delimiter','sleft','sright','eoi', but given 'type-id'"),
+            "id":actionType.error("expected 'operator','bslash','colon','dcolon','dotdot','delimiter','sleft','sright','eoi', but given 'id'"),
             "$":actionType.reduce(1)
             },
         7:{
@@ -2670,54 +2675,54 @@ var MbolLang = function(){
             "$":actionType.error("expected 'binary','float','hex','id','int','parenthese','lbracketm','string','uscore', but given '$'")
             },
         30:{
-            "lapp":actionType.error("expected 'binary','block','float','hex','id','int','parenthese','lbracketm','let','match','operator','string','type','type-id','uscore', but given 'operator'"),
-            "rapp":actionType.error("expected 'binary','block','float','hex','id','int','parenthese','lbracketm','let','match','operator','string','type','type-id','uscore', but given 'operator'"),
-            "rarr":actionType.error("expected 'binary','block','float','hex','id','int','parenthese','lbracketm','let','match','operator','string','type','type-id','uscore', but given 'operator'"),
-            "sleft":actionType.error("expected 'binary','block','float','hex','id','int','parenthese','lbracketm','let','match','operator','string','type','type-id','uscore', but given 'sleft'"),
-            "sright":actionType.error("expected 'binary','block','float','hex','id','int','parenthese','lbracketm','let','match','operator','string','type','type-id','uscore', but given 'sright'"),
+            "lapp":actionType.error("expected 'binary','block','float','hex','id','int','parenthese','lbracketm','match','operator','string','type-id','uscore', but given 'operator'"),
+            "rapp":actionType.error("expected 'binary','block','float','hex','id','int','parenthese','lbracketm','match','operator','string','type-id','uscore', but given 'operator'"),
+            "rarr":actionType.error("expected 'binary','block','float','hex','id','int','parenthese','lbracketm','match','operator','string','type-id','uscore', but given 'operator'"),
+            "sleft":actionType.error("expected 'binary','block','float','hex','id','int','parenthese','lbracketm','match','operator','string','type-id','uscore', but given 'sleft'"),
+            "sright":actionType.error("expected 'binary','block','float','hex','id','int','parenthese','lbracketm','match','operator','string','type-id','uscore', but given 'sright'"),
             "lbracketm":actionType.shift(17),
-            "rbracketm":actionType.error("expected 'binary','block','float','hex','id','int','parenthese','lbracketm','let','match','operator','string','type','type-id','uscore', but given 'rbracketm'"),
+            "rbracketm":actionType.error("expected 'binary','block','float','hex','id','int','parenthese','lbracketm','match','operator','string','type-id','uscore', but given 'rbracketm'"),
             "lpar":actionType.shift(19),
             "lbracket":actionType.shift(16),
-            "rpar":actionType.error("expected 'binary','block','float','hex','id','int','parenthese','lbracketm','let','match','operator','string','type','type-id','uscore', but given 'parenthese'"),
-            "rbracket":actionType.error("expected 'binary','block','float','hex','id','int','parenthese','lbracketm','let','match','operator','string','type','type-id','uscore', but given 'parenthese'"),
-            "plus":actionType.error("expected 'binary','block','float','hex','id','int','parenthese','lbracketm','let','match','operator','string','type','type-id','uscore', but given 'operator'"),
+            "rpar":actionType.error("expected 'binary','block','float','hex','id','int','parenthese','lbracketm','match','operator','string','type-id','uscore', but given 'parenthese'"),
+            "rbracket":actionType.error("expected 'binary','block','float','hex','id','int','parenthese','lbracketm','match','operator','string','type-id','uscore', but given 'parenthese'"),
+            "plus":actionType.error("expected 'binary','block','float','hex','id','int','parenthese','lbracketm','match','operator','string','type-id','uscore', but given 'operator'"),
             "minus":actionType.shift(21),
-            "power":actionType.error("expected 'binary','block','float','hex','id','int','parenthese','lbracketm','let','match','operator','string','type','type-id','uscore', but given 'operator'"),
-            "divide":actionType.error("expected 'binary','block','float','hex','id','int','parenthese','lbracketm','let','match','operator','string','type','type-id','uscore', but given 'operator'"),
-            "modulo":actionType.error("expected 'binary','block','float','hex','id','int','parenthese','lbracketm','let','match','operator','string','type','type-id','uscore', but given 'operator'"),
-            "times":actionType.error("expected 'binary','block','float','hex','id','int','parenthese','lbracketm','let','match','operator','string','type','type-id','uscore', but given 'operator'"),
-            "eq":actionType.error("expected 'binary','block','float','hex','id','int','parenthese','lbracketm','let','match','operator','string','type','type-id','uscore', but given 'operator'"),
-            "not-eq":actionType.error("expected 'binary','block','float','hex','id','int','parenthese','lbracketm','let','match','operator','string','type','type-id','uscore', but given 'operator'"),
-            "geq":actionType.error("expected 'binary','block','float','hex','id','int','parenthese','lbracketm','let','match','operator','string','type','type-id','uscore', but given 'operator'"),
-            "leq":actionType.error("expected 'binary','block','float','hex','id','int','parenthese','lbracketm','let','match','operator','string','type','type-id','uscore', but given 'operator'"),
-            "gt":actionType.error("expected 'binary','block','float','hex','id','int','parenthese','lbracketm','let','match','operator','string','type','type-id','uscore', but given 'operator'"),
-            "lt":actionType.error("expected 'binary','block','float','hex','id','int','parenthese','lbracketm','let','match','operator','string','type','type-id','uscore', but given 'operator'"),
-            "and":actionType.error("expected 'binary','block','float','hex','id','int','parenthese','lbracketm','let','match','operator','string','type','type-id','uscore', but given 'operator'"),
-            "or":actionType.error("expected 'binary','block','float','hex','id','int','parenthese','lbracketm','let','match','operator','string','type','type-id','uscore', but given 'operator'"),
-            "imp":actionType.error("expected 'binary','block','float','hex','id','int','parenthese','lbracketm','let','match','operator','string','type','type-id','uscore', but given 'operator'"),
-            "biimp":actionType.error("expected 'binary','block','float','hex','id','int','parenthese','lbracketm','let','match','operator','string','type','type-id','uscore', but given 'operator'"),
+            "power":actionType.error("expected 'binary','block','float','hex','id','int','parenthese','lbracketm','match','operator','string','type-id','uscore', but given 'operator'"),
+            "divide":actionType.error("expected 'binary','block','float','hex','id','int','parenthese','lbracketm','match','operator','string','type-id','uscore', but given 'operator'"),
+            "modulo":actionType.error("expected 'binary','block','float','hex','id','int','parenthese','lbracketm','match','operator','string','type-id','uscore', but given 'operator'"),
+            "times":actionType.error("expected 'binary','block','float','hex','id','int','parenthese','lbracketm','match','operator','string','type-id','uscore', but given 'operator'"),
+            "eq":actionType.error("expected 'binary','block','float','hex','id','int','parenthese','lbracketm','match','operator','string','type-id','uscore', but given 'operator'"),
+            "not-eq":actionType.error("expected 'binary','block','float','hex','id','int','parenthese','lbracketm','match','operator','string','type-id','uscore', but given 'operator'"),
+            "geq":actionType.error("expected 'binary','block','float','hex','id','int','parenthese','lbracketm','match','operator','string','type-id','uscore', but given 'operator'"),
+            "leq":actionType.error("expected 'binary','block','float','hex','id','int','parenthese','lbracketm','match','operator','string','type-id','uscore', but given 'operator'"),
+            "gt":actionType.error("expected 'binary','block','float','hex','id','int','parenthese','lbracketm','match','operator','string','type-id','uscore', but given 'operator'"),
+            "lt":actionType.error("expected 'binary','block','float','hex','id','int','parenthese','lbracketm','match','operator','string','type-id','uscore', but given 'operator'"),
+            "and":actionType.error("expected 'binary','block','float','hex','id','int','parenthese','lbracketm','match','operator','string','type-id','uscore', but given 'operator'"),
+            "or":actionType.error("expected 'binary','block','float','hex','id','int','parenthese','lbracketm','match','operator','string','type-id','uscore', but given 'operator'"),
+            "imp":actionType.error("expected 'binary','block','float','hex','id','int','parenthese','lbracketm','match','operator','string','type-id','uscore', but given 'operator'"),
+            "biimp":actionType.error("expected 'binary','block','float','hex','id','int','parenthese','lbracketm','match','operator','string','type-id','uscore', but given 'operator'"),
             "not":actionType.shift(22),
-            "comma":actionType.error("expected 'binary','block','float','hex','id','int','parenthese','lbracketm','let','match','operator','string','type','type-id','uscore', but given 'delimiter'"),
-            "dotdot":actionType.error("expected 'binary','block','float','hex','id','int','parenthese','lbracketm','let','match','operator','string','type','type-id','uscore', but given 'dotdot'"),
-            "dot":actionType.error("expected 'binary','block','float','hex','id','int','parenthese','lbracketm','let','match','operator','string','type','type-id','uscore', but given 'delimiter'"),
-            "mid":actionType.error("expected 'binary','block','float','hex','id','int','parenthese','lbracketm','let','match','operator','string','type','type-id','uscore', but given 'delimiter'"),
+            "comma":actionType.error("expected 'binary','block','float','hex','id','int','parenthese','lbracketm','match','operator','string','type-id','uscore', but given 'delimiter'"),
+            "dotdot":actionType.error("expected 'binary','block','float','hex','id','int','parenthese','lbracketm','match','operator','string','type-id','uscore', but given 'dotdot'"),
+            "dot":actionType.error("expected 'binary','block','float','hex','id','int','parenthese','lbracketm','match','operator','string','type-id','uscore', but given 'delimiter'"),
+            "mid":actionType.error("expected 'binary','block','float','hex','id','int','parenthese','lbracketm','match','operator','string','type-id','uscore', but given 'delimiter'"),
             "uscore":actionType.shift(27),
-            "qmark":actionType.error("expected 'binary','block','float','hex','id','int','parenthese','lbracketm','let','match','operator','string','type','type-id','uscore', but given 'qmark'"),
-            "bslash":actionType.error("expected 'binary','block','float','hex','id','int','parenthese','lbracketm','let','match','operator','string','type','type-id','uscore', but given 'bslash'"),
-            "up":actionType.error("expected 'binary','block','float','hex','id','int','parenthese','lbracketm','let','match','operator','string','type','type-id','uscore', but given 'operator'"),
-            "amp":actionType.error("expected 'binary','block','float','hex','id','int','parenthese','lbracketm','let','match','operator','string','type','type-id','uscore', but given 'operator'"),
+            "qmark":actionType.error("expected 'binary','block','float','hex','id','int','parenthese','lbracketm','match','operator','string','type-id','uscore', but given 'qmark'"),
+            "bslash":actionType.error("expected 'binary','block','float','hex','id','int','parenthese','lbracketm','match','operator','string','type-id','uscore', but given 'bslash'"),
+            "up":actionType.error("expected 'binary','block','float','hex','id','int','parenthese','lbracketm','match','operator','string','type-id','uscore', but given 'operator'"),
+            "amp":actionType.error("expected 'binary','block','float','hex','id','int','parenthese','lbracketm','match','operator','string','type-id','uscore', but given 'operator'"),
             "tilde":actionType.shift(24),
-            "scolon":actionType.error("expected 'binary','block','float','hex','id','int','parenthese','lbracketm','let','match','operator','string','type','type-id','uscore', but given 'delimiter'"),
-            "dcolon":actionType.error("expected 'binary','block','float','hex','id','int','parenthese','lbracketm','let','match','operator','string','type','type-id','uscore', but given 'dcolon'"),
-            "colon":actionType.error("expected 'binary','block','float','hex','id','int','parenthese','lbracketm','let','match','operator','string','type','type-id','uscore', but given 'colon'"),
-            "let":actionType.shift(18),
-            "type":actionType.shift(25),
-            "assign":actionType.error("expected 'binary','block','float','hex','id','int','parenthese','lbracketm','let','match','operator','string','type','type-id','uscore', but given 'assign'"),
+            "scolon":actionType.error("expected 'binary','block','float','hex','id','int','parenthese','lbracketm','match','operator','string','type-id','uscore', but given 'delimiter'"),
+            "dcolon":actionType.error("expected 'binary','block','float','hex','id','int','parenthese','lbracketm','match','operator','string','type-id','uscore', but given 'dcolon'"),
+            "colon":actionType.error("expected 'binary','block','float','hex','id','int','parenthese','lbracketm','match','operator','string','type-id','uscore', but given 'colon'"),
+            "let":actionType.error("expected 'binary','block','float','hex','id','int','parenthese','lbracketm','match','operator','string','type-id','uscore', but given 'let'"),
+            "type":actionType.error("expected 'binary','block','float','hex','id','int','parenthese','lbracketm','match','operator','string','type-id','uscore', but given 'type'"),
+            "assign":actionType.error("expected 'binary','block','float','hex','id','int','parenthese','lbracketm','match','operator','string','type-id','uscore', but given 'assign'"),
             "match":actionType.shift(20),
-            "with":actionType.error("expected 'binary','block','float','hex','id','int','parenthese','lbracketm','let','match','operator','string','type','type-id','uscore', but given 'with'"),
+            "with":actionType.error("expected 'binary','block','float','hex','id','int','parenthese','lbracketm','match','operator','string','type-id','uscore', but given 'with'"),
             "block":actionType.shift(11),
-            "of":actionType.error("expected 'binary','block','float','hex','id','int','parenthese','lbracketm','let','match','operator','string','type','type-id','uscore', but given 'of'"),
+            "of":actionType.error("expected 'binary','block','float','hex','id','int','parenthese','lbracketm','match','operator','string','type-id','uscore', but given 'of'"),
             "hex":actionType.shift(13),
             "binary":actionType.shift(10),
             "float":actionType.shift(12),
@@ -2725,7 +2730,7 @@ var MbolLang = function(){
             "string":actionType.shift(23),
             "type-id":actionType.shift(26),
             "id":actionType.shift(14),
-            "$":actionType.error("expected 'binary','block','float','hex','id','int','parenthese','lbracketm','let','match','operator','string','type','type-id','uscore', but given '$'")
+            "$":actionType.error("expected 'binary','block','float','hex','id','int','parenthese','lbracketm','match','operator','string','type-id','uscore', but given '$'")
             },
         31:{
             "lapp":actionType.error("expected 'binary','block','float','hex','id','int','parenthese','lbracketm','let','match','operator','string','type','type-id','uscore', but given 'operator'"),
@@ -5454,119 +5459,119 @@ var MbolLang = function(){
             "$":actionType.reduce(64)
             },
         78:{
-            "lapp":actionType.error("expected 'parenthese', but given 'operator'"),
-            "rapp":actionType.error("expected 'parenthese', but given 'operator'"),
-            "rarr":actionType.error("expected 'parenthese', but given 'operator'"),
-            "sleft":actionType.error("expected 'parenthese', but given 'sleft'"),
-            "sright":actionType.error("expected 'parenthese', but given 'sright'"),
-            "lbracketm":actionType.error("expected 'parenthese', but given 'lbracketm'"),
-            "rbracketm":actionType.error("expected 'parenthese', but given 'rbracketm'"),
-            "lpar":actionType.error("expected 'parenthese', but given 'parenthese'"),
-            "lbracket":actionType.error("expected 'parenthese', but given 'parenthese'"),
-            "rpar":actionType.error("expected 'parenthese', but given 'parenthese'"),
+            "lapp":actionType.shift(44),
+            "rapp":actionType.shift(53),
+            "rarr":actionType.shift(54),
+            "sleft":actionType.shift(55),
+            "sright":actionType.shift(56),
+            "lbracketm":actionType.error("expected 'operator','bslash','colon','dcolon','dotdot','parenthese','sleft','sright', but given 'lbracketm'"),
+            "rbracketm":actionType.error("expected 'operator','bslash','colon','dcolon','dotdot','parenthese','sleft','sright', but given 'rbracketm'"),
+            "lpar":actionType.error("expected 'operator','bslash','colon','dcolon','dotdot','parenthese','sleft','sright', but given 'parenthese'"),
+            "lbracket":actionType.error("expected 'operator','bslash','colon','dcolon','dotdot','parenthese','sleft','sright', but given 'parenthese'"),
+            "rpar":actionType.error("expected 'operator','bslash','colon','dcolon','dotdot','parenthese','sleft','sright', but given 'parenthese'"),
             "rbracket":actionType.shift(125),
-            "plus":actionType.error("expected 'parenthese', but given 'operator'"),
-            "minus":actionType.error("expected 'parenthese', but given 'operator'"),
-            "power":actionType.error("expected 'parenthese', but given 'operator'"),
-            "divide":actionType.error("expected 'parenthese', but given 'operator'"),
-            "modulo":actionType.error("expected 'parenthese', but given 'operator'"),
-            "times":actionType.error("expected 'parenthese', but given 'operator'"),
-            "eq":actionType.error("expected 'parenthese', but given 'operator'"),
-            "not-eq":actionType.error("expected 'parenthese', but given 'operator'"),
-            "geq":actionType.error("expected 'parenthese', but given 'operator'"),
-            "leq":actionType.error("expected 'parenthese', but given 'operator'"),
-            "gt":actionType.error("expected 'parenthese', but given 'operator'"),
-            "lt":actionType.error("expected 'parenthese', but given 'operator'"),
-            "and":actionType.error("expected 'parenthese', but given 'operator'"),
-            "or":actionType.error("expected 'parenthese', but given 'operator'"),
-            "imp":actionType.error("expected 'parenthese', but given 'operator'"),
-            "biimp":actionType.error("expected 'parenthese', but given 'operator'"),
-            "not":actionType.error("expected 'parenthese', but given 'operator'"),
-            "comma":actionType.error("expected 'parenthese', but given 'delimiter'"),
-            "dotdot":actionType.error("expected 'parenthese', but given 'dotdot'"),
-            "dot":actionType.error("expected 'parenthese', but given 'delimiter'"),
-            "mid":actionType.error("expected 'parenthese', but given 'delimiter'"),
-            "uscore":actionType.error("expected 'parenthese', but given 'uscore'"),
-            "qmark":actionType.error("expected 'parenthese', but given 'qmark'"),
-            "bslash":actionType.error("expected 'parenthese', but given 'bslash'"),
-            "up":actionType.error("expected 'parenthese', but given 'operator'"),
-            "amp":actionType.error("expected 'parenthese', but given 'operator'"),
-            "tilde":actionType.error("expected 'parenthese', but given 'operator'"),
-            "scolon":actionType.error("expected 'parenthese', but given 'delimiter'"),
-            "dcolon":actionType.error("expected 'parenthese', but given 'dcolon'"),
-            "colon":actionType.error("expected 'parenthese', but given 'colon'"),
-            "let":actionType.error("expected 'parenthese', but given 'let'"),
-            "type":actionType.error("expected 'parenthese', but given 'type'"),
-            "assign":actionType.error("expected 'parenthese', but given 'assign'"),
-            "match":actionType.error("expected 'parenthese', but given 'match'"),
-            "with":actionType.error("expected 'parenthese', but given 'with'"),
-            "block":actionType.error("expected 'parenthese', but given 'block'"),
-            "of":actionType.error("expected 'parenthese', but given 'of'"),
-            "hex":actionType.error("expected 'parenthese', but given 'hex'"),
-            "binary":actionType.error("expected 'parenthese', but given 'binary'"),
-            "float":actionType.error("expected 'parenthese', but given 'float'"),
-            "int":actionType.error("expected 'parenthese', but given 'int'"),
-            "string":actionType.error("expected 'parenthese', but given 'string'"),
-            "type-id":actionType.error("expected 'parenthese', but given 'type-id'"),
-            "id":actionType.error("expected 'parenthese', but given 'id'"),
-            "$":actionType.error("expected 'parenthese', but given '$'")
+            "plus":actionType.shift(51),
+            "minus":actionType.shift(47),
+            "power":actionType.shift(52),
+            "divide":actionType.shift(38),
+            "modulo":actionType.shift(48),
+            "times":actionType.shift(57),
+            "eq":actionType.shift(40),
+            "not-eq":actionType.shift(49),
+            "geq":actionType.shift(41),
+            "leq":actionType.shift(45),
+            "gt":actionType.shift(42),
+            "lt":actionType.shift(46),
+            "and":actionType.shift(33),
+            "or":actionType.shift(50),
+            "imp":actionType.shift(43),
+            "biimp":actionType.shift(34),
+            "not":actionType.error("expected 'operator','bslash','colon','dcolon','dotdot','parenthese','sleft','sright', but given 'operator'"),
+            "comma":actionType.error("expected 'operator','bslash','colon','dcolon','dotdot','parenthese','sleft','sright', but given 'delimiter'"),
+            "dotdot":actionType.shift(39),
+            "dot":actionType.error("expected 'operator','bslash','colon','dcolon','dotdot','parenthese','sleft','sright', but given 'delimiter'"),
+            "mid":actionType.error("expected 'operator','bslash','colon','dcolon','dotdot','parenthese','sleft','sright', but given 'delimiter'"),
+            "uscore":actionType.error("expected 'operator','bslash','colon','dcolon','dotdot','parenthese','sleft','sright', but given 'uscore'"),
+            "qmark":actionType.error("expected 'operator','bslash','colon','dcolon','dotdot','parenthese','sleft','sright', but given 'qmark'"),
+            "bslash":actionType.shift(35),
+            "up":actionType.shift(58),
+            "amp":actionType.shift(32),
+            "tilde":actionType.error("expected 'operator','bslash','colon','dcolon','dotdot','parenthese','sleft','sright', but given 'operator'"),
+            "scolon":actionType.error("expected 'operator','bslash','colon','dcolon','dotdot','parenthese','sleft','sright', but given 'delimiter'"),
+            "dcolon":actionType.shift(37),
+            "colon":actionType.shift(36),
+            "let":actionType.error("expected 'operator','bslash','colon','dcolon','dotdot','parenthese','sleft','sright', but given 'let'"),
+            "type":actionType.error("expected 'operator','bslash','colon','dcolon','dotdot','parenthese','sleft','sright', but given 'type'"),
+            "assign":actionType.error("expected 'operator','bslash','colon','dcolon','dotdot','parenthese','sleft','sright', but given 'assign'"),
+            "match":actionType.error("expected 'operator','bslash','colon','dcolon','dotdot','parenthese','sleft','sright', but given 'match'"),
+            "with":actionType.error("expected 'operator','bslash','colon','dcolon','dotdot','parenthese','sleft','sright', but given 'with'"),
+            "block":actionType.error("expected 'operator','bslash','colon','dcolon','dotdot','parenthese','sleft','sright', but given 'block'"),
+            "of":actionType.error("expected 'operator','bslash','colon','dcolon','dotdot','parenthese','sleft','sright', but given 'of'"),
+            "hex":actionType.error("expected 'operator','bslash','colon','dcolon','dotdot','parenthese','sleft','sright', but given 'hex'"),
+            "binary":actionType.error("expected 'operator','bslash','colon','dcolon','dotdot','parenthese','sleft','sright', but given 'binary'"),
+            "float":actionType.error("expected 'operator','bslash','colon','dcolon','dotdot','parenthese','sleft','sright', but given 'float'"),
+            "int":actionType.error("expected 'operator','bslash','colon','dcolon','dotdot','parenthese','sleft','sright', but given 'int'"),
+            "string":actionType.error("expected 'operator','bslash','colon','dcolon','dotdot','parenthese','sleft','sright', but given 'string'"),
+            "type-id":actionType.error("expected 'operator','bslash','colon','dcolon','dotdot','parenthese','sleft','sright', but given 'type-id'"),
+            "id":actionType.error("expected 'operator','bslash','colon','dcolon','dotdot','parenthese','sleft','sright', but given 'id'"),
+            "$":actionType.error("expected 'operator','bslash','colon','dcolon','dotdot','parenthese','sleft','sright', but given '$'")
             },
         79:{
-            "lapp":actionType.error("expected 'delimiter','parenthese','eoi', but given 'operator'"),
-            "rapp":actionType.error("expected 'delimiter','parenthese','eoi', but given 'operator'"),
-            "rarr":actionType.error("expected 'delimiter','parenthese','eoi', but given 'operator'"),
-            "sleft":actionType.error("expected 'delimiter','parenthese','eoi', but given 'sleft'"),
-            "sright":actionType.error("expected 'delimiter','parenthese','eoi', but given 'sright'"),
-            "lbracketm":actionType.error("expected 'delimiter','parenthese','eoi', but given 'lbracketm'"),
-            "rbracketm":actionType.error("expected 'delimiter','parenthese','eoi', but given 'rbracketm'"),
-            "lpar":actionType.error("expected 'delimiter','parenthese','eoi', but given 'parenthese'"),
-            "lbracket":actionType.error("expected 'delimiter','parenthese','eoi', but given 'parenthese'"),
-            "rpar":actionType.error("expected 'delimiter','parenthese','eoi', but given 'parenthese'"),
-            "rbracket":actionType.reduce(2),
-            "plus":actionType.error("expected 'delimiter','parenthese','eoi', but given 'operator'"),
-            "minus":actionType.error("expected 'delimiter','parenthese','eoi', but given 'operator'"),
-            "power":actionType.error("expected 'delimiter','parenthese','eoi', but given 'operator'"),
-            "divide":actionType.error("expected 'delimiter','parenthese','eoi', but given 'operator'"),
-            "modulo":actionType.error("expected 'delimiter','parenthese','eoi', but given 'operator'"),
-            "times":actionType.error("expected 'delimiter','parenthese','eoi', but given 'operator'"),
-            "eq":actionType.error("expected 'delimiter','parenthese','eoi', but given 'operator'"),
-            "not-eq":actionType.error("expected 'delimiter','parenthese','eoi', but given 'operator'"),
-            "geq":actionType.error("expected 'delimiter','parenthese','eoi', but given 'operator'"),
-            "leq":actionType.error("expected 'delimiter','parenthese','eoi', but given 'operator'"),
-            "gt":actionType.error("expected 'delimiter','parenthese','eoi', but given 'operator'"),
-            "lt":actionType.error("expected 'delimiter','parenthese','eoi', but given 'operator'"),
-            "and":actionType.error("expected 'delimiter','parenthese','eoi', but given 'operator'"),
-            "or":actionType.error("expected 'delimiter','parenthese','eoi', but given 'operator'"),
-            "imp":actionType.error("expected 'delimiter','parenthese','eoi', but given 'operator'"),
-            "biimp":actionType.error("expected 'delimiter','parenthese','eoi', but given 'operator'"),
-            "not":actionType.error("expected 'delimiter','parenthese','eoi', but given 'operator'"),
-            "comma":actionType.error("expected 'delimiter','parenthese','eoi', but given 'delimiter'"),
-            "dotdot":actionType.error("expected 'delimiter','parenthese','eoi', but given 'dotdot'"),
-            "dot":actionType.error("expected 'delimiter','parenthese','eoi', but given 'delimiter'"),
+            "lapp":actionType.error("expected 'delimiter','eoi', but given 'operator'"),
+            "rapp":actionType.error("expected 'delimiter','eoi', but given 'operator'"),
+            "rarr":actionType.error("expected 'delimiter','eoi', but given 'operator'"),
+            "sleft":actionType.error("expected 'delimiter','eoi', but given 'sleft'"),
+            "sright":actionType.error("expected 'delimiter','eoi', but given 'sright'"),
+            "lbracketm":actionType.error("expected 'delimiter','eoi', but given 'lbracketm'"),
+            "rbracketm":actionType.error("expected 'delimiter','eoi', but given 'rbracketm'"),
+            "lpar":actionType.error("expected 'delimiter','eoi', but given 'parenthese'"),
+            "lbracket":actionType.error("expected 'delimiter','eoi', but given 'parenthese'"),
+            "rpar":actionType.error("expected 'delimiter','eoi', but given 'parenthese'"),
+            "rbracket":actionType.error("expected 'delimiter','eoi', but given 'parenthese'"),
+            "plus":actionType.error("expected 'delimiter','eoi', but given 'operator'"),
+            "minus":actionType.error("expected 'delimiter','eoi', but given 'operator'"),
+            "power":actionType.error("expected 'delimiter','eoi', but given 'operator'"),
+            "divide":actionType.error("expected 'delimiter','eoi', but given 'operator'"),
+            "modulo":actionType.error("expected 'delimiter','eoi', but given 'operator'"),
+            "times":actionType.error("expected 'delimiter','eoi', but given 'operator'"),
+            "eq":actionType.error("expected 'delimiter','eoi', but given 'operator'"),
+            "not-eq":actionType.error("expected 'delimiter','eoi', but given 'operator'"),
+            "geq":actionType.error("expected 'delimiter','eoi', but given 'operator'"),
+            "leq":actionType.error("expected 'delimiter','eoi', but given 'operator'"),
+            "gt":actionType.error("expected 'delimiter','eoi', but given 'operator'"),
+            "lt":actionType.error("expected 'delimiter','eoi', but given 'operator'"),
+            "and":actionType.error("expected 'delimiter','eoi', but given 'operator'"),
+            "or":actionType.error("expected 'delimiter','eoi', but given 'operator'"),
+            "imp":actionType.error("expected 'delimiter','eoi', but given 'operator'"),
+            "biimp":actionType.error("expected 'delimiter','eoi', but given 'operator'"),
+            "not":actionType.error("expected 'delimiter','eoi', but given 'operator'"),
+            "comma":actionType.error("expected 'delimiter','eoi', but given 'delimiter'"),
+            "dotdot":actionType.error("expected 'delimiter','eoi', but given 'dotdot'"),
+            "dot":actionType.error("expected 'delimiter','eoi', but given 'delimiter'"),
             "mid":actionType.reduce(2),
-            "uscore":actionType.error("expected 'delimiter','parenthese','eoi', but given 'uscore'"),
-            "qmark":actionType.error("expected 'delimiter','parenthese','eoi', but given 'qmark'"),
-            "bslash":actionType.error("expected 'delimiter','parenthese','eoi', but given 'bslash'"),
-            "up":actionType.error("expected 'delimiter','parenthese','eoi', but given 'operator'"),
-            "amp":actionType.error("expected 'delimiter','parenthese','eoi', but given 'operator'"),
-            "tilde":actionType.error("expected 'delimiter','parenthese','eoi', but given 'operator'"),
+            "uscore":actionType.error("expected 'delimiter','eoi', but given 'uscore'"),
+            "qmark":actionType.error("expected 'delimiter','eoi', but given 'qmark'"),
+            "bslash":actionType.error("expected 'delimiter','eoi', but given 'bslash'"),
+            "up":actionType.error("expected 'delimiter','eoi', but given 'operator'"),
+            "amp":actionType.error("expected 'delimiter','eoi', but given 'operator'"),
+            "tilde":actionType.error("expected 'delimiter','eoi', but given 'operator'"),
             "scolon":actionType.reduce(2),
-            "dcolon":actionType.error("expected 'delimiter','parenthese','eoi', but given 'dcolon'"),
-            "colon":actionType.error("expected 'delimiter','parenthese','eoi', but given 'colon'"),
-            "let":actionType.error("expected 'delimiter','parenthese','eoi', but given 'let'"),
-            "type":actionType.error("expected 'delimiter','parenthese','eoi', but given 'type'"),
-            "assign":actionType.error("expected 'delimiter','parenthese','eoi', but given 'assign'"),
-            "match":actionType.error("expected 'delimiter','parenthese','eoi', but given 'match'"),
-            "with":actionType.error("expected 'delimiter','parenthese','eoi', but given 'with'"),
-            "block":actionType.error("expected 'delimiter','parenthese','eoi', but given 'block'"),
-            "of":actionType.error("expected 'delimiter','parenthese','eoi', but given 'of'"),
-            "hex":actionType.error("expected 'delimiter','parenthese','eoi', but given 'hex'"),
-            "binary":actionType.error("expected 'delimiter','parenthese','eoi', but given 'binary'"),
-            "float":actionType.error("expected 'delimiter','parenthese','eoi', but given 'float'"),
-            "int":actionType.error("expected 'delimiter','parenthese','eoi', but given 'int'"),
-            "string":actionType.error("expected 'delimiter','parenthese','eoi', but given 'string'"),
-            "type-id":actionType.error("expected 'delimiter','parenthese','eoi', but given 'type-id'"),
-            "id":actionType.error("expected 'delimiter','parenthese','eoi', but given 'id'"),
+            "dcolon":actionType.error("expected 'delimiter','eoi', but given 'dcolon'"),
+            "colon":actionType.error("expected 'delimiter','eoi', but given 'colon'"),
+            "let":actionType.error("expected 'delimiter','eoi', but given 'let'"),
+            "type":actionType.error("expected 'delimiter','eoi', but given 'type'"),
+            "assign":actionType.error("expected 'delimiter','eoi', but given 'assign'"),
+            "match":actionType.error("expected 'delimiter','eoi', but given 'match'"),
+            "with":actionType.error("expected 'delimiter','eoi', but given 'with'"),
+            "block":actionType.error("expected 'delimiter','eoi', but given 'block'"),
+            "of":actionType.error("expected 'delimiter','eoi', but given 'of'"),
+            "hex":actionType.error("expected 'delimiter','eoi', but given 'hex'"),
+            "binary":actionType.error("expected 'delimiter','eoi', but given 'binary'"),
+            "float":actionType.error("expected 'delimiter','eoi', but given 'float'"),
+            "int":actionType.error("expected 'delimiter','eoi', but given 'int'"),
+            "string":actionType.error("expected 'delimiter','eoi', but given 'string'"),
+            "type-id":actionType.error("expected 'delimiter','eoi', but given 'type-id'"),
+            "id":actionType.error("expected 'delimiter','eoi', but given 'id'"),
             "$":actionType.reduce(2)
             },
         80:{
@@ -11954,14 +11959,14 @@ var MbolLang = function(){
             "SMaker'":actionType.none()
             },
         30:{
-            "Stmt":actionType.some(78),
-            "Bind":actionType.some(5),
+            "Stmt":actionType.none(),
+            "Bind":actionType.none(),
             "Matcher":actionType.none(),
             "Matcher'":actionType.none(),
             "MatchLeft":actionType.none(),
             "MatchLeft'":actionType.none(),
             "MatchWhen":actionType.none(),
-            "Exp":actionType.some(6),
+            "Exp":actionType.some(78),
             "Atom":actionType.some(2),
             "AtomTuple":actionType.none(),
             "AtomTuple'":actionType.none(),
@@ -16523,6 +16528,7 @@ var MbolLang = function(){
                     break;
                 case "binding-type":
                     outf(int2spaces(depth)+"&lt;binding-type:"+tree.id.v+"&gt;");
+                    exec(depth+1,tree.args[0]);
                     break;
                 case "binding":
                     var ids = function(){
@@ -16537,10 +16543,28 @@ var MbolLang = function(){
                         exec(depth+1,tree.lines[i]);
                         }
                     break;
+                case "type-plus":
+                    outf(int2spaces(depth)+"&lt;type-plusr&gt;");
+                    exec(depth+1,tree.args[0]);
+                    exec(depth+1,tree.args[1]);
+                    break;
+                case "type-constr":
+                    outf(int2spaces(depth)+"&lt;type-constr:"+tree.id+"&gt;");
+                    exec(depth+1,tree.body);
+                    break;
+                case "type-constr-body":
+                    exec(depth,tree.args[0]);
+                    break;
                 case "op-bin":
                     outf(int2spaces(depth)+"&lt;op-bin&gt;"+tree.v);
                     exec(depth+1,tree.args[0]);
                     exec(depth+1,tree.args[1]);
+                    break;
+                case "block":
+                    outf(int2spaces(depth)+"&lt;block&gt;");
+                    for(var i = 0; i < tree.lines.length; i++){
+                        exec(depth+1,tree.lines[i]);
+                        }
                     break;
                 case "match":
                     outf(int2spaces(depth)+"&lt;match&gt;");
@@ -16558,6 +16582,25 @@ var MbolLang = function(){
                     for(var i = 0; i < tree.args.length; i++){
                         exec(depth +1,tree.args[i]);
                         }
+                    break;
+                case "list":
+                    outf(int2spaces(depth) + "&lt;list&gt;");
+                    for(var i = 0; i < tree.args.length; i++){
+                        outf(int2spaces(depth+1)+"&lt;item&gt;");
+                        exec(depth+2,tree.args[i]);
+                        }
+                    break;
+                case "array":
+                    outf(int2spaces(depth) + "&lt;array&gt");
+                    for(var i = 0; i < tree.args.length; i++){
+                        outf(int2spaces(depth+1)+"&lt;item&gt;");
+                        exec(depth+2,tree.args[i]);
+                        }
+                    break;
+                case "indexing":
+                    outf(int2spaces(depth)+"&lt;indexing&gt;");
+                    exec(depth+1,tree.items);
+                    exec(depth+1,tree.ind);
                     break;
                 case "atom":
                     outf(int2spaces(depth)+"&lt;atom:"+tree.prgType+"&gt;"+tree.v);

@@ -160,7 +160,7 @@ prod Atom''     -> "int"
                  | List
                  | Arr
 prod AtomIndexer-> "dot" Atom'' AtomIndexer
-                 | "lbracket" Stmt "rbracket"
+                 | "lbracket" Exp "rbracket"
                  | 
 prod IdTuple    -> Id IdTuple'
                  | "lpar" Id IdTuple' "rpar"

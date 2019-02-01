@@ -1,65 +1,14 @@
-    var int2spaces = function(n){
-        var retval = "";
-        for(var i = 0; i < n; i++){
-            retval += "|  ";
-            }
-        return retval;
-        };
-    var writeType = function(t){
-        var retstr = "";
-        for(var i = 0; i < t.args.length; i++){
-            retstr += t.args[i].v + ".";
-            }
-        return retstr.substr(0,retstr.length-1);
-        };
-    var writeMatchLeft = function(l){
-        var retstr = "";
-        var op = l[l.length - 1];
-        var writeOp = function(op){
-            var res = "::";
-            for(var i = 0; i < op.args.length; i++){
-                res += op.args[i].v + "::";
-                }
-            return res.substr(0,res.length-2);
-            };
-        if(l.length === 3){
-            retstr += writeType(l[0]);
-            retstr += " ";
-            retstr += l[1].v;
-            }
-        else {
-            retstr += l[0].v;
-            }
-        if(op.args.length !== 0){
-            retstr += writeOp(op);
-            }
-        return retstr;
-        };
-    var writeMatchWhen = function(w){
-        var retstr = "";
-        if(w.length > 0){
-            var s = new Stack();
-            s.push(w[0]);
-            retstr += " when ";
-            traverseTree(function(s){
-                retstr += s + " ";
-                },s);
-            }
-        return retstr;
-        };
     var traverseTree = function(outf,treeStack){
         var exec = function(depth,tree){
             switch(tree.type){
                 case "scope":
-                    outf(int2spaces(depth)+"&lt;scope&gt;");
+                    outf(depth,tree);
                     for(var i = 0; i < tree.lines.length; i++){
-                        //var line = tree.lines[i];
-                        //outf(line.type)
                         exec(depth+1,tree.lines[i]);
                         }
                     break;
                 case "binding-type":
-                    outf(int2spaces(depth)+"&lt;binding-type:"+tree.id.v+"&gt;");
+                    outf(depth,tree);
                     exec(depth+1,tree.args[0]);
                     break;
                 case "binding":

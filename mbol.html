@@ -69,7 +69,20 @@
             a
         </span>
         <script src="stack.js"></script>
-        <script src="mbol.js"></script>
+        <script src="mbol_parser.js"></script>
+        <script src="mbol_testing.js"></script>
+        <script src="mbol_exec.js"></script>
+        <script>
+            var printfn = function(){
+                var ud = document.getElementById("ud");
+                ud.style.fontFamily = "monospace";
+                ud.style.fontSize = "11pt";
+                ud.style.whiteSpace = "pre";
+                return function(str){
+                    ud.innerHTML += str + "<br>";
+                    };
+                }();
+        </script>
         <script>
             var incode = function(){
                 var retval = document.getElementById("code1").innerHTML;
@@ -93,18 +106,15 @@
                     );
                 return retval;
                 }();
-            
-            var printfn = function(){
-                var ud = document.getElementById("ud");
-                ud.style.fontFamily = "monospace";
-                ud.style.fontSize = "11pt";
-                ud.style.whiteSpace = "pre";
-                return function(str){
-                    ud.innerHTML += str + "<br>";
-                    };
-                }();
-            var mbol = new MbolLang();
-            var tree = mbol.eval(incode);
+            /* Testing */
+            /* Testing */
+            /* Testing */
+            var lexed = lexer(incode);
+            for(var i = 0; lexed[i] !== undefined; i++){
+                //printfn(lexed[i].tt);
+                }
+            var parsed = parser(lexed);
+            var out = writeTree(printfn,parsed);
             printfn("\n\n****done****")
         </script>
     </body>

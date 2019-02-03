@@ -71,12 +71,12 @@
     var pushBinOp = function(tree,op){
         var opR = tree.pop();
         var opL = tree.pop();
-        tree.push({type:"op-bin",prgType:[op,"@"],nodeType:"bin",v:op,args:[opL,opR]});
+        tree.push({type:"op-bin",prgType:["@"],nodeType:"bin",v:op,args:[opL,opR]});
         return tree;
         };
     var pushUnOp = function(tree,op){
         var opOne = tree.pop();
-        tree.push({type:"op-un",prgType:[op,"@"],nodeType:"unary",v:op,args:[opOne]});
+        tree.push({type:"op-un",prgType:["@"],nodeType:"unary",v:op,args:[opOne]});
         return tree;
         };
     /* Change Me! Create the abstract syntax tree here */
@@ -662,7 +662,10 @@
             "(!)|"+
             "(,)|"+
             "(\\.\\.)|"+
-            "(\\.)|"+
+
+
+            "([0-9]*\\.[0-9]+)|"+
+
             "(::)|"+
             "(\\|)|"+
             "(_)|"+
@@ -682,9 +685,12 @@
             "(of)|"+
             "(0x[0-9a-fA-F]+)|"+
             "(0b[01]+)|"+
-            "([0\\.9]*\\.[0-9]+)|"+
+
+            "(\\.)|"+
+
+
             "(0|[1-9][0-9]*)|"+
-            "(\"[^\"]*\")|"+
+            "\"([^\"]*)\"|"+
             "([A-Z][a-zA-Z0-9_]*)|"+
             "([a-z][a-zA-Z0-9_]*)|"+
             "\\/\\*[^\\*]*\\*\\/|"+
@@ -820,7 +826,8 @@
                     retval[retI] = {t:"none",tt:"dotdot",tv:null,posX:posX - linepos.start,posY:linepos.lnr};
                     retI++;
                     }
-                else if(typeof i31 !== "undefined"){
+                else if(typeof i51 !== "undefined"){
+                    //switch with float
                     retval[retI] = {t:"none",tt:"dot",tv:null,posX:posX - linepos.start,posY:linepos.lnr};
                     retI++;
                     }
@@ -900,8 +907,8 @@
                     retval[retI] = {t:"some",tt:"binary",tv:i50,posX:posX - linepos.start,posY:linepos.lnr};
                     retI++;
                     }
-                else if(typeof i51 !== "undefined"){
-                    retval[retI] = {t:"some",tt:"float",tv:i51,posX:posX - linepos.start,posY:linepos.lnr};
+                else if(typeof i31 !== "undefined"){
+                    retval[retI] = {t:"some",tt:"float",tv:i31,posX:posX - linepos.start,posY:linepos.lnr};
                     retI++;
                     }
                 else if(typeof i52 !== "undefined"){

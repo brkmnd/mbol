@@ -47,7 +47,7 @@
             }
         return retstr;
         };
-    var writeTree = function(outf,treeStack){
+    var writeTree = function(outf,tree){
         var exec = function(depth,tree){
             switch(tree.type){
                 case "scope":
@@ -88,7 +88,7 @@
                     exec(depth,tree.args[0]);
                     break;
                 case "op-bin":
-                    outf(int2spaces(depth)+"&lt;op-bin&gt;"+tree.v);
+                    outf(int2spaces(depth)+"&lt;op-bin:"+tree.prgType+"&gt;"+tree.v);
                     exec(depth+1,tree.args[0]);
                     exec(depth+1,tree.args[1]);
                     break;
@@ -142,5 +142,5 @@
                     break;
                 }
             };
-        exec(0,treeStack.pop());
+        exec(0,tree);
         };

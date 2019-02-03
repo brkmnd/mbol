@@ -8,6 +8,7 @@
         </style>
     </head>
     <body>
+        <p id="ud0"></p>
         <p id="ud"></p>
         <span id="code1" style="display:none;">
             let a = 2 + 2;
@@ -68,8 +69,14 @@
                 ;
             a
         </span>
+        <span class="codef" id="code4">
+            let a,b = (2.200 + 2.456,.456);
+            a + b
+        </span>
         <script src="stack.js"></script>
         <script src="mbol_parser.js"></script>
+        <script src="mbol_absyn.js"></script>
+        <script src="mbol_typeinfer.js"></script>
         <script src="mbol_testing.js"></script>
         <script src="mbol_exec.js"></script>
         <script>
@@ -85,7 +92,7 @@
         </script>
         <script>
             var incode = function(){
-                var retval = document.getElementById("code1").innerHTML;
+                var retval = document.getElementById("code4").innerHTML;
                 retval = retval.replace(/(\&gt;)|(\&lt;)|(\&amp;)|¤([a-zA-Z])/g,
                     function(a,i1,i2,i3,i4){
                         if(i1 !== undefined){
@@ -106,6 +113,15 @@
                     );
                 return retval;
                 }();
+            var printInput = function(){
+                var inputf = document.getElementById("ud0");
+                inputf.style.fontFamily = "monospace";
+                inputf.style.fontSize = "11pt";
+                inputf.style.whiteSpace = "pre";
+                inputf.style.color = "white";
+                inputf.style.backgroundColor = "black";
+                inputf.innerHTML = incode;
+                }();
             /* Testing */
             /* Testing */
             /* Testing */
@@ -114,7 +130,12 @@
                 //printfn(lexed[i].tt);
                 }
             var parsed = parser(lexed);
-            var out = writeTree(printfn,parsed);
+            //grap tree and check for errors
+            var tree = function(){
+                return parsed.pop();
+                }();
+            var typed = typeInfer(tree);
+            var out = writeTree(printfn,typed);
             printfn("\n\n****done****")
         </script>
     </body>

@@ -66,11 +66,11 @@
                     var ids = function(){
                         var rval = "";
                         for(var i = 0; i < tree.id.length; i++){
-                            rval += tree.id[i].v + ",";
+                            rval += tree.id[i].v+":"+tree.id[i].prgType[0]+",";
                             }
                         return rval.substr(0,rval.length - 1);
                         }();
-                    outf(int2spaces(depth)+"&lt;binding:"+ids+"&gt;");
+                    outf(int2spaces(depth)+"&lt;binding["+ids+"]&gt;");
                     for(var i = 0; i < tree.lines.length; i++){
                         exec(depth+1,tree.lines[i]);
                         }

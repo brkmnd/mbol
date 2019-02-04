@@ -9,20 +9,23 @@
             "fun":[]
             };
         var typeVarId = 1;
-        var matchTypeComp = function(t0,t1){
-            for(var i = 0; i < t0.length; i++){
+        var compareTypes = function(t0,t1){ 
+            //compare iterating over the shortest of the
+            //two type-lists
+            var len0 = Math.min(t0.length,t1.length);
+            for(var i = 0; i < len0; i++){
                 if(t0[i][0] !== "@" && t0[i] !== t1[i]){
                     return false;
                     }
                 }
             return true;
             };
-        var matchType = function(op,t0){
+        var matchTypeOp = function(op,t0){
             if(environment[op] === undefined){
                 return null;
                 }
             for(var i = 0; i < environment[op].length; i++){
-                if(matchTypeComp(t0,environment[op][i])){
+                if(compareTypes(t0,environment[op][i])){
                     var retval = environment[op][i];
                     return retval[retval.length - 1];
                     }
@@ -66,20 +69,42 @@
                 typeVarId++;
                 return true;
                 }
-            var mType = matchType(node.v,typeList);
+            var mType = matchTypeOp(node.v,typeList);
             if(mType !== null){
                 node.prgType[0] = mType;
                 return true;
                 }
             return false;
             };
-        var scope = {};
+        var scopes = {};
+        var scopeCheckCurrent = function(d,v){
+            return scopes[d] !== undefined && scopes[d][v] !== undefined;
+            };
+        var scopeCheckDown = function(d,v){ 
+            for(var i = d; i >= 0; i--){
+                if(scopes[i] !== undefined && scopes[i][v] !== undefined){
+                    return i;
+                    }
+                }
+            return -1;
+            };
+        var scopeLastDepth = 0;
         traverseTree(
             function(depth,node){
                 switch(node.type){
                     case "binding":
                         //reset scope, this is not done properly at the moment.
-                        scope = {};
+                        //scope = {};
+                        var scope = function(){
+                            if(scopeLastDepth > depth){
+                                scopes[scopeLastDepth] = {};
+                                }
+                            if(scopes[depth] === undefined){
+                                scopes[depth] = {};
+                                }
+                            scopeLastDepth = depth;
+                            return scopes[depth];
+                            }();
                         if(!matchBinding(node.id,node.lines[node.lines.length - 1],scope)){
                             alert("type error: binding");
                             }
@@ -90,12 +115,15 @@
                             }
                         break;
                     case "atom":
-                        if(scope[node.v] !== undefined && node.prgType[0] === "@"){
+                        var scopeI = scopeCheckDown(depth,node.v);
+                        if(scopeI > -1){
                             if(node.prgType[0] === "@"){
-                                node.prgType = scope[node.v];
+                                node.prgType = scopes[scopeI][node.v];
                                 }
                             //check whether infered type match that of scope type
-                            //else if(node.prgType)
+                            else if(compareTypes(node.prgType,scopes[scopeI][node.v])){
+                                alert("type matched succesfully");
+                                }
                             else {
                                 alert("scope error");
                                 }
